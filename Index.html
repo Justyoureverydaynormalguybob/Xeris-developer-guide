@@ -474,4 +474,365 @@ cargo build --release
 
   <!-- 5. JSON-RPC -->
   <section id="json-rpc">
-    <h2>5. JSON-RPC 
+    <h2>5. JSON-RPC API</h2>
+    <p>Send POST requests to <code>http://138.197.116.81:50008/rpc</code></p>
+
+    <h3>Request Format</h3>
+    <pre><code>{
+  <span class="string">"jsonrpc"</span>: <span class="string">"2.0"</span>,
+  <span class="string">"id"</span>: <span class="param">1</span>,
+  <span class="string">"method"</span>: <span class="string">"METHOD_NAME"</span>,
+  <span class="string">"params"</span>: []
+}</code></pre>
+
+    <h3>Available Methods</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Method</th><th>Parameters</th><th>Description</th></tr>
+        <tr><td><code>getVersion</code></td><td>none</td><td>Node version info</td></tr>
+        <tr><td><code>getHealth</code></td><td>none</td><td>Node health status</td></tr>
+        <tr><td><code>getBalance</code></td><td><code>[address]</code></td><td>Wallet balance in lamports</td></tr>
+        <tr><td><code>getAccountInfo</code></td><td><code>[address]</code></td><td>Full account details</td></tr>
+        <tr><td><code>getSlot</code></td><td>none</td><td>Current slot number</td></tr>
+        <tr><td><code>getBlockHeight</code></td><td>none</td><td>Current block height</td></tr>
+        <tr><td><code>getRecentBlockhash</code></td><td>none</td><td>Recent blockhash for signing</td></tr>
+        <tr><td><code>getLatestBlockhash</code></td><td>none</td><td>Latest blockhash + validity</td></tr>
+        <tr><td><code>getBlock</code></td><td><code>[slot]</code></td><td>Block data by slot</td></tr>
+        <tr><td><code>getSignaturesForAddress</code></td><td><code>[address]</code></td><td>Transaction history for address</td></tr>
+        <tr><td><code>getTransaction</code></td><td><code>[signature]</code></td><td>Transaction details</td></tr>
+        <tr><td><code>sendTransaction</code></td><td><code>[tx_base64]</code></td><td>Submit signed transaction</td></tr>
+      </table>
+    </div>
+
+    <h3>Example Calls</h3>
+    <pre><code><span class="comment"># Get wallet balance</span>
+curl -X POST -H <span class="string">"Content-Type: application/json"</span> \
+  -d <span class="string">'{"jsonrpc":"2.0","id":1,"method":"getBalance","params":["YOUR_ADDRESS"]}'</span> \
+  http://138.197.116.81:50008/rpc
+
+<span class="comment"># Get current block height</span>
+curl -X POST -H <span class="string">"Content-Type: application/json"</span> \
+  -d <span class="string">'{"jsonrpc":"2.0","id":1,"method":"getBlockHeight","params":[]}'</span> \
+  http://138.197.116.81:50008/rpc
+
+<span class="comment"># Get latest blockhash (needed for signing)</span>
+curl -X POST -H <span class="string">"Content-Type: application/json"</span> \
+  -d <span class="string">'{"jsonrpc":"2.0","id":1,"method":"getLatestBlockhash","params":[]}'</span> \
+  http://138.197.116.81:50008/rpc</code></pre>
+  </section>
+
+  <!-- 6. Network API -->
+  <section id="network-api">
+    <h2>6. Network/Submit API (Port 56001)</h2>
+    <p>These endpoints handle transaction submission, staking, and the faucet.</p>
+
+    <div class="table-wrap">
+      <table>
+        <tr><th>Method</th><th>Endpoint</th><th>Body</th><th>Description</th></tr>
+        <tr><td><code>GET</code></td><td><code>/airdrop/:address/:amount</code></td><td>—</td><td>Faucet (request XRS)</td></tr>
+        <tr><td><code>POST</code></td><td><code>/submit</code></td><td><code>{"tx_base64":"..."}</code></td><td>Submit transaction</td></tr>
+        <tr><td><code>POST</code></td><td><code>/stake</code></td><td><code>{"pubkey":"..."}</code></td><td>Stake XRS</td></tr>
+      </table>
+    </div>
+
+    <h3>Faucet Example</h3>
+    <pre><code><span class="comment"># Request testnet XRS</span>
+curl http://138.197.116.81:56001/airdrop/YOUR_ADDRESS/100</code></pre>
+  </section>
+
+  <!-- 7. API Quick Reference -->
+  <section id="api-quickref">
+    <h2>7. API Quick Reference Card</h2>
+    <div class="api-ref">
+      <span class="section-label">REST Endpoints (port 50008)</span>
+      <span class="get">GET</span>  <span class="path">/v2/stats</span>                         <span class="desc">→ Network stats</span><br>
+      <span class="get">GET</span>  <span class="path">/v2/blocks?limit=N</span>                <span class="desc">→ Recent blocks</span><br>
+      <span class="get">GET</span>  <span class="path">/v2/block/slot/:slot</span>              <span class="desc">→ Block by slot</span><br>
+      <span class="get">GET</span>  <span class="path">/v2/transactions?limit=N</span>          <span class="desc">→ Recent transactions</span><br>
+      <span class="get">GET</span>  <span class="path">/v2/tx/:signature</span>                 <span class="desc">→ Transaction by sig</span><br>
+      <span class="get">GET</span>  <span class="path">/v2/account/:address</span>              <span class="desc">→ Account info</span><br>
+      <span class="get">GET</span>  <span class="path">/v2/account/:address/transactions</span> <span class="desc">→ Account history</span><br>
+      <span class="get">GET</span>  <span class="path">/v2/validators</span>                    <span class="desc">→ Validator list</span><br>
+      <span class="get">GET</span>  <span class="path">/v2/search?q=:query</span>               <span class="desc">→ Search everything</span><br>
+      <span class="get">GET</span>  <span class="path">/wallet/:address</span>                  <span class="desc">→ Wallet balance</span><br>
+      <span class="get">GET</span>  <span class="path">/api/balances</span>                     <span class="desc">→ All balances</span><br>
+      <span class="get">GET</span>  <span class="path">/stakes</span>                           <span class="desc">→ All stakes</span><br>
+      <br>
+      <span class="section-label">JSON-RPC (POST /rpc on port 50008)</span>
+      <span class="method">getVersion</span> · <span class="method">getHealth</span> · <span class="method">getBalance</span> · <span class="method">getAccountInfo</span><br>
+      <span class="method">getSlot</span> · <span class="method">getBlockHeight</span> · <span class="method">getRecentBlockhash</span> · <span class="method">getLatestBlockhash</span><br>
+      <span class="method">getBlock</span> · <span class="method">getSignaturesForAddress</span> · <span class="method">getTransaction</span> · <span class="method">sendTransaction</span><br>
+      <br>
+      <span class="section-label">Network API (port 56001)</span>
+      <span class="get">GET</span>  <span class="path">/airdrop/:address/:amount</span>  <span class="desc">→ Faucet</span><br>
+      <span class="post">POST</span> <span class="path">/submit</span>  <span class="desc">{"tx_base64":"..."} → Submit tx</span><br>
+      <span class="post">POST</span> <span class="path">/stake</span>   <span class="desc">{"pubkey":"..."} → Stake XRS</span><br>
+    </div>
+
+    <h3>Discovering New Endpoints</h3>
+    <pre><code><span class="comment"># Test for new RPC methods</span>
+curl -X POST -H <span class="string">"Content-Type: application/json"</span> \
+  -d <span class="string">'{"jsonrpc":"2.0","id":1,"method":"NEW_METHOD","params":[]}'</span> \
+  http://138.197.116.81:50008/rpc
+
+<span class="comment"># Unknown methods return:</span>
+<span class="comment"># {"result":{"error":"Unknown method: NEW_METHOD"}}</span></code></pre>
+  </section>
+
+  <!-- 8. First dApp -->
+  <section id="first-dapp">
+    <h2>8. Building Your First dApp</h2>
+
+    <h3>Step 1: Xeris API Client</h3>
+    <p>A reusable JavaScript class that wraps all Xeris endpoints:</p>
+    <pre><code><span class="keyword">class</span> <span class="method">XerisClient</span> {
+  <span class="keyword">constructor</span>() {
+    <span class="keyword">this</span>.API = <span class="string">"http://138.197.116.81:50008"</span>;
+    <span class="keyword">this</span>.NET = <span class="string">"http://138.197.116.81:56001"</span>;
+  }
+
+  <span class="comment">// REST API</span>
+  <span class="keyword">async</span> <span class="method">getStats</span>() {
+    <span class="keyword">return</span> (<span class="keyword">await</span> fetch(`${<span class="keyword">this</span>.API}/v2/stats`)).json();
+  }
+
+  <span class="keyword">async</span> <span class="method">getAccount</span>(<span class="param">addr</span>) {
+    <span class="keyword">return</span> (<span class="keyword">await</span> fetch(`${<span class="keyword">this</span>.API}/v2/account/${<span class="param">addr</span>}`)).json();
+  }
+
+  <span class="keyword">async</span> <span class="method">getBlocks</span>(<span class="param">limit</span> = <span class="param">10</span>) {
+    <span class="keyword">return</span> (<span class="keyword">await</span> fetch(`${<span class="keyword">this</span>.API}/v2/blocks?limit=${<span class="param">limit</span>}`)).json();
+  }
+
+  <span class="keyword">async</span> <span class="method">getValidators</span>() {
+    <span class="keyword">return</span> (<span class="keyword">await</span> fetch(`${<span class="keyword">this</span>.API}/v2/validators`)).json();
+  }
+
+  <span class="keyword">async</span> <span class="method">search</span>(<span class="param">query</span>) {
+    <span class="keyword">return</span> (<span class="keyword">await</span> fetch(`${<span class="keyword">this</span>.API}/v2/search?q=${<span class="param">query</span>}`)).json();
+  }
+
+  <span class="comment">// JSON-RPC</span>
+  <span class="keyword">async</span> <span class="method">rpc</span>(<span class="param">method</span>, <span class="param">params</span> = []) {
+    <span class="keyword">const</span> res = <span class="keyword">await</span> fetch(`${<span class="keyword">this</span>.API}/rpc`, {
+      method: <span class="string">"POST"</span>,
+      headers: { <span class="string">"Content-Type"</span>: <span class="string">"application/json"</span> },
+      body: JSON.stringify({ jsonrpc:<span class="string">"2.0"</span>, id:<span class="param">1</span>, <span class="param">method</span>, <span class="param">params</span> })
+    });
+    <span class="keyword">return</span> (<span class="keyword">await</span> res.json()).result;
+  }
+
+  <span class="keyword">async</span> <span class="method">getBalance</span>(<span class="param">a</span>) { <span class="keyword">return this</span>.rpc(<span class="string">"getBalance"</span>, [<span class="param">a</span>]); }
+  <span class="keyword">async</span> <span class="method">getLatestBlockhash</span>() { <span class="keyword">return this</span>.rpc(<span class="string">"getLatestBlockhash"</span>); }
+  <span class="keyword">async</span> <span class="method">sendTransaction</span>(<span class="param">tx</span>) { <span class="keyword">return this</span>.rpc(<span class="string">"sendTransaction"</span>, [<span class="param">tx</span>]); }
+
+  <span class="comment">// Network API (port 56001)</span>
+  <span class="keyword">async</span> <span class="method">airdrop</span>(<span class="param">addr</span>, <span class="param">amt</span>) {
+    <span class="keyword">return</span> (<span class="keyword">await</span> fetch(`${<span class="keyword">this</span>.NET}/airdrop/${<span class="param">addr</span>}/${<span class="param">amt</span>}`)).json();
+  }
+
+  <span class="keyword">async</span> <span class="method">submitTx</span>(<span class="param">tx</span>) {
+    <span class="keyword">return</span> (<span class="keyword">await</span> fetch(`${<span class="keyword">this</span>.NET}/submit`, {
+      method: <span class="string">"POST"</span>,
+      headers: { <span class="string">"Content-Type"</span>: <span class="string">"application/json"</span> },
+      body: JSON.stringify({ tx_base64: <span class="param">tx</span> })
+    })).json();
+  }
+
+  <span class="keyword">async</span> <span class="method">stake</span>(<span class="param">pubkey</span>) {
+    <span class="keyword">return</span> (<span class="keyword">await</span> fetch(`${<span class="keyword">this</span>.NET}/stake`, {
+      method: <span class="string">"POST"</span>,
+      headers: { <span class="string">"Content-Type"</span>: <span class="string">"application/json"</span> },
+      body: JSON.stringify({ pubkey: <span class="param">pubkey</span> })
+    })).json();
+  }
+}</code></pre>
+
+    <h3>Step 2: Use It</h3>
+    <pre><code><span class="keyword">const</span> client = <span class="keyword">new</span> <span class="method">XerisClient</span>();
+
+<span class="comment">// Get network stats</span>
+<span class="keyword">const</span> stats = <span class="keyword">await</span> client.<span class="method">getStats</span>();
+console.log(`Block Height: ${stats.blockHeight}`);
+
+<span class="comment">// Check a wallet balance</span>
+<span class="keyword">const</span> balance = <span class="keyword">await</span> client.<span class="method">getBalance</span>(<span class="string">"YOUR_ADDRESS"</span>);
+console.log(`Balance: ${balance.value} lamports`);
+
+<span class="comment">// Get recent blocks</span>
+<span class="keyword">const</span> blocks = <span class="keyword">await</span> client.<span class="method">getBlocks</span>(<span class="param">5</span>);
+blocks.forEach(b => console.log(`Slot ${b.slot}`));</code></pre>
+  </section>
+
+  <!-- 9. Wallet Integration -->
+  <section id="wallet">
+    <h2>9. Wallet Integration</h2>
+    <p>The Xeris Wallet app supports <strong>WalletConnect</strong> via the Reown protocol, enabling QR-code wallet connections.</p>
+
+    <h3>Chain ID Format (CAIP-2)</h3>
+    <pre><code>solana:&lt;GenesisHash&gt;</code></pre>
+
+    <h3>Reown AppKit Setup</h3>
+    <pre><code><span class="keyword">import</span> { createAppKit } <span class="keyword">from</span> <span class="string">"@reown/appkit"</span>;
+
+<span class="keyword">const</span> xerisChain = {
+  id: <span class="string">"solana:YOUR_GENESIS_HASH"</span>,
+  name: <span class="string">"Xeris L1"</span>,
+  nativeCurrency: { name: <span class="string">"XerisCoin"</span>, symbol: <span class="string">"XRS"</span>, decimals: <span class="param">9</span> },
+  rpcUrls: {
+    default: { http: [<span class="string">"http://138.197.116.81:50008/rpc"</span>] }
+  }
+};
+
+<span class="keyword">const</span> appKit = createAppKit({
+  projectId: <span class="string">"YOUR_REOWN_PROJECT_ID"</span>,
+  chains: [xerisChain],
+  metadata: {
+    name: <span class="string">"My Xeris dApp"</span>,
+    description: <span class="string">"Built on Xeris"</span>,
+    url: <span class="string">"https://your-dapp.com"</span>
+  }
+});</code></pre>
+
+    <div class="callout callout-info">
+      <p><strong>Note:</strong> Coordinate with the wallet developer on the exact genesis hash. The current placeholder is <code>solana:CustomGenesisHash1234567890</code> — both the dApp and wallet must use the same chain ID.</p>
+    </div>
+  </section>
+
+  <!-- 10. Transactions -->
+  <section id="transactions">
+    <h2>10. Transaction Handling</h2>
+    <h3>Sending a Transaction</h3>
+    <pre><code><span class="keyword">import</span> nacl <span class="keyword">from</span> <span class="string">'tweetnacl'</span>;
+
+<span class="keyword">async function</span> <span class="method">sendXRS</span>(<span class="param">keypair</span>, <span class="param">recipient</span>, <span class="param">amount</span>) {
+  <span class="keyword">const</span> client = <span class="keyword">new</span> <span class="method">XerisClient</span>();
+
+  <span class="comment">// 1. Get recent blockhash</span>
+  <span class="keyword">const</span> { blockhash } = <span class="keyword">await</span> client.<span class="method">getLatestBlockhash</span>();
+
+  <span class="comment">// 2. Construct transaction</span>
+  <span class="keyword">const</span> tx = {
+    recentBlockhash: blockhash,
+    instructions: [{
+      from: <span class="param">keypair</span>.publicKey,
+      to: <span class="param">recipient</span>,
+      amount: <span class="param">amount</span>
+    }]
+  };
+
+  <span class="comment">// 3. Sign</span>
+  <span class="keyword">const</span> msg = Buffer.from(JSON.stringify(tx));
+  <span class="keyword">const</span> sig = nacl.sign.detached(msg, <span class="param">keypair</span>.secretKey);
+
+  <span class="comment">// 4. Submit</span>
+  <span class="keyword">return</span> client.<span class="method">submitTx</span>(Buffer.from(sig).toString(<span class="string">'base64'</span>));
+}</code></pre>
+
+    <div class="callout callout-tip">
+      <p>Transaction serialization format may evolve. Check the latest XerisCoin GitHub repo for the most current format.</p>
+    </div>
+  </section>
+
+  <!-- 11. Staking -->
+  <section id="staking">
+    <h2>11. Staking & Validation</h2>
+    <p>Validators must stake a minimum of <strong>100 XRS</strong>. Rewards are based on:</p>
+    <pre><code>Validation Power (VP) = Stake Amount × Uptime Percentage</code></pre>
+
+    <h3>Stake via API</h3>
+    <pre><code>curl -X POST -H <span class="string">"Content-Type: application/json"</span> \
+  -d <span class="string">'{"pubkey": "YOUR_PUBLIC_KEY"}'</span> \
+  http://138.197.116.81:56001/stake</code></pre>
+
+    <h3>Run a Validator 24/7</h3>
+    <pre><code><span class="comment"># Use tmux to keep your node running</span>
+tmux new -s xeris
+./target/release/xrs-node --validator 138.197.116.81 miner.json ledger.dat
+<span class="comment"># Press Ctrl+B, D to detach</span>
+<span class="comment"># Reconnect later with: tmux attach -t xeris</span></code></pre>
+  </section>
+
+  <!-- 12. dApp Ideas -->
+  <section id="dapp-ideas">
+    <h2>12. dApp Ideas for the Community</h2>
+
+    <div class="card-grid">
+      <div class="card"><span class="level level-beginner">Beginner</span><h4>Wallet Dashboard</h4><p>Display balances, transaction history, and staking info for any address.</p></div>
+      <div class="card"><span class="level level-beginner">Beginner</span><h4>Block Explorer</h4><p>Visual browser for blocks, transactions, and accounts on the chain.</p></div>
+      <div class="card"><span class="level level-beginner">Beginner</span><h4>Faucet UI</h4><p>User-friendly interface for the testnet airdrop endpoint.</p></div>
+      <div class="card"><span class="level level-beginner">Beginner</span><h4>Network Monitor</h4><p>Real-time dashboard showing TPS, block height, and validator count.</p></div>
+      <div class="card"><span class="level level-intermediate">Intermediate</span><h4>Staking Dashboard</h4><p>Compare validators, track rewards, and manage your stakes.</p></div>
+      <div class="card"><span class="level level-intermediate">Intermediate</span><h4>Transaction Builder</h4><p>GUI for constructing, signing, and submitting transactions.</p></div>
+      <div class="card"><span class="level level-intermediate">Intermediate</span><h4>Address Watch List</h4><p>Monitor multiple addresses with real-time notifications.</p></div>
+      <div class="card"><span class="level level-intermediate">Intermediate</span><h4>Portfolio Tracker</h4><p>Track XRS holdings across wallets over time with charts.</p></div>
+      <div class="card"><span class="level level-advanced">Advanced</span><h4>DEX</h4><p>Decentralized exchange with token swap functionality.</p></div>
+      <div class="card"><span class="level level-advanced">Advanced</span><h4>Token Launchpad</h4><p>Create and deploy custom tokens on Xeris.</p></div>
+      <div class="card"><span class="level level-advanced">Advanced</span><h4>NFT Marketplace</h4><p>Mint, list, and trade NFTs on the Xeris chain.</p></div>
+      <div class="card"><span class="level level-advanced">Advanced</span><h4>DAO Governance</h4><p>On-chain voting, proposals, and community treasury management.</p></div>
+    </div>
+  </section>
+
+  <!-- 13. Resources -->
+  <section id="resources">
+    <h2>13. Resources & Community</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Resource</th><th>Link</th></tr>
+        <tr><td>XerisCoin GitHub</td><td><a href="https://github.com/ZZachWWins/xeriscoin" target="_blank">github.com/ZZachWWins/xeriscoin</a></td></tr>
+        <tr><td>Xeris Command Center</td><td><a href="https://github.com/ZZachWWins/XerisCoin_Blockchain_Ui" target="_blank">github.com/ZZachWWins/XerisCoin_Blockchain_Ui</a></td></tr>
+        <tr><td>Xeris Website</td><td><a href="https://xerisweb.com" target="_blank">xerisweb.com</a></td></tr>
+      </table>
+    </div>
+
+    <h3>Developer Tips</h3>
+    <ol>
+      <li><strong>Start simple</strong> — Build a wallet checker before tackling complex dApps</li>
+      <li><strong>Use the REST API first</strong> — It's easier than JSON-RPC for reading data</li>
+      <li><strong>Back up your keys</strong> — <code>miner.json</code> is unrecoverable if lost</li>
+      <li><strong>Test with the faucet</strong> — Use <code>/airdrop</code> to get testnet XRS first</li>
+      <li><strong>Check GitHub regularly</strong> — New features and endpoints are added frequently</li>
+      <li><strong>CORS note</strong> — Browser dApps may need a proxy server for API calls depending on node CORS config</li>
+    </ol>
+  </section>
+
+</main>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <p><span class="footer-accent">Xeris Developer Documentation</span> — v1.0 — February 2026</p>
+  <p>Community-built. Open source. Happy building.</p>
+</footer>
+
+<script>
+// Sidebar toggle (mobile)
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+
+// Close sidebar on link click (mobile)
+document.querySelectorAll('.sidebar a').forEach(a => {
+  a.addEventListener('click', () => {
+    if (window.innerWidth <= 900) toggleSidebar();
+  });
+});
+
+// Active nav highlight on scroll
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.sidebar a');
+
+function updateNav() {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 120) current = s.id;
+  });
+  navLinks.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+  });
+}
+window.addEventListener('scroll', updateNav, { passive: true });
+updateNav();
+</script>
+</body>
+</html>
